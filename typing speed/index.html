@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Speed Typing Test</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Gotu);
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Gotu", sans-serif;
+  font-weight: normal;
+  font-size: 18px;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  background: #fff;
+  color: #414244;
+}
+
+main {
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  width: 100%;
+  height: 100%;
+  padding: 3rem;
+}
+
+.quote-display {
+  position: relative;
+  grid-row: 1/2;
+  align-self: end;
+}
+.quote-display span {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: 0.1rem;
+}
+.quote-display::before {
+  content: open-quote;
+  position: absolute;
+  top: -5rem;
+  left: -2rem;
+  z-index: -1;
+  font-size: 10rem;
+  color: #d7d7d8;
+}
+
+.typing {
+  position: relative;
+  grid-row: 2/-1;
+  display: grid;
+  grid-template-columns: 33% auto 2rem auto 2rem;
+  align-items: start;
+  width: 100%;
+  height: 100%;
+}
+.typing:hover hr {
+  width: 75%;
+}
+
+hr {
+  grid-column: 1/-1;
+  margin-top: 1rem;
+  border: 0.25rem solid #4fb578;
+  width: 25%;
+  transition: width 300ms ease-in-out;
+  outline: 0;
+}
+
+.score {
+  position: relative;
+  grid-column: 3/-2;
+  display: flex;
+  justify-content: space-between;
+  z-index: 2;
+  width: 50%;
+  margin-top: -150px;
+  margin-bottom: -1rem;
+  background:yellowgreen;
+  padding: 0.25rem 2rem;
+  box-shadow: 0 3px 6px rgba(52, 31, 97, 0.16), 0 3px 6px rgba(52, 31, 97, 0.23);
+}
+
+.quote-input {
+  
+  margin-left: -1200px;
+  margin-bottom: -100px;
+}
+.quote-input::placeholder {
+  color:rgb(43, 0, 255);
+  transition: color 300ms ease-in-out;
+  font-size: larger;
+}
+.quote-input:hover::placeholder {
+  color: #4fb578;
+}
+
+.right {
+  color: #4fb578;
+}
+
+.wrong {
+  color: #b55648;
+  text-decoration: line-through;
+}
+
+.halp {
+  position: relative;
+  border-color: #b55648;
+  animation: glitch 300ms;
+}
+
+@keyframes glitch {
+  0% {
+    transform: translateY(-2%);
+    border-color: #414244;
+    box-shadow: -1.5px 2.5px #4fa5b5;
+  }
+  15% {
+    transform: translateY(5%);
+    box-shadow: 2px -1px #d87dbb;
+  }
+  45% {
+    border-color: #d7d7d8;
+    box-shadow: 0.5px -2px #d7d7d8;
+  }
+  85% {
+    border-color: #b55648;
+    box-shadow: 1px -1.5px #d87dbb;
+  }
+  100% {
+    transform: translateX(-1%);
+    box-shadow: -0.5px 0.5px #4fa5b5;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="quote-display" id="quoteDisplay"><span></span></div>
+      <section class="typing">
+        <hr />
+        <div class="score">
+          <div class="timer">
+            <span class="timer__label">Time:</span>
+            <span class="timer__text" id="timer">0</span>
+          </div>
+          <div class="words-per-minute">
+            <span class="words-per-minute__label">Words/min:</span>
+            <span class="words-per-minute__text" id="wpm">0</span>
+          </div>
+          <div class="accuracy-container">
+        <span class="accuracy-label">Accuracy:</span>
+        <span class="accuracy" id="accuracy">0.00%</span>
+    </div>
+        </div>
+        <textarea class="quote-input" name="quoteInput" id="quoteInput" placeholder="Start typing right here!" cdkFocusInitial></textarea>
+      </section>
+    </main>
+    <script>
+        const RANDOM_QUOTE_API_URL = "https://api.quotable.io/random";
+const quoteDisplayElement = document.querySelector("#quoteDisplay");
+const quoteInputElement = document.querySelector("#quoteInput");
+const timerElement = document.querySelector("#timer");
+const wordsPerMinuteElement = document.querySelector("#wpm");
+const accuracyElement = document.querySelector("#accuracy"); // Added accuracy element
+const divider = document.querySelector("hr");
+
+let originalQuote = "Try not to become a man of success, but rather try to become a man of value.";
+let currentQuote = originalQuote;
+let additionalLines = [];
+let correctCount = 0;
+let totalCount = 0;
+
+quoteInputElement.addEventListener("input", () => {
+    const quoteArray = quoteDisplayElement.querySelectorAll("span");
+    const valueArray = quoteInputElement.value.split("");
+    let right = true;
+    let count = 0;
+
+    quoteArray.forEach((characterSpan, i) => {
+        const character = valueArray[i];
+
+        if (character == null) {
+            characterSpan.classList.remove("right");
+            characterSpan.classList.remove("wrong");
+            right = false;
+        } else if (character === characterSpan.textContent) {
+            characterSpan.classList.add("right");
+            characterSpan.classList.remove("wrong");
+            divider.classList.remove("halp");
+            count++;
+            correctCount++; // Increment correct count
+        } else {
+            characterSpan.classList.remove("right");
+            characterSpan.classList.add("wrong");
+            divider.classList.add("halp");
+            right = false;
+        }
+        totalCount++; // Increment total count
+    });
+
+    let accuracy = (correctCount / totalCount) * 100; // Calculate accuracy
+
+    let randomNumber = Math.round(count * 60 / (getTimerTime() * 5) * 10) / 10;
+
+    if (isNaN(randomNumber)) {
+        wordsPerMinuteElement.textContent = "0";
+    } else {
+        wordsPerMinuteElement.textContent = randomNumber;
+    }
+
+    if (right && currentQuote === originalQuote) {
+        // If the user typed the original quote correctly, append new lines.
+        additionalLines.push("");
+        currentQuote = originalQuote + "\n" + additionalLines.join("\n");
+        updateQuote(currentQuote);
+    }
+
+    accuracyElement.textContent = accuracy.toFixed(2) + "%"; // Display accuracy with 2 decimal places
+});
+
+function getRandomQuote() {
+    return fetch(RANDOM_QUOTE_API_URL)
+        .then((response) => response.json())
+        .then((data) => data.content)
+        .catch(error => console.log(error));
+}
+
+async function getNextQuote() {
+    const quote = await getRandomQuote();
+    additionalLines = [];
+    originalQuote = quote;
+    currentQuote = originalQuote;
+    quoteInputElement.value = null;
+    updateQuote(originalQuote);
+    startTimer();
+    accuracyElement.textContent = "0.00%"; // Reset accuracy
+    correctCount = 0; // Reset correct count
+    totalCount = 0; // Reset total count
+}
+
+let startTime;
+
+function startTimer() {
+    timerElement.textContent = 0;
+    startTime = new Date();
+    setInterval(() => {
+        timerElement.textContent = getTimerTime();
+    }, 1000);
+}
+
+function getTimerTime() {
+    return Math.floor((new Date() - startTime) / 1000);
+}
+
+function updateQuote(quote) {
+    quoteDisplayElement.innerHTML = "";
+    quote.split("").forEach((character) => {
+        if (character === '\n') {
+            const lineBreak = document.createElement("br");
+            quoteDisplayElement.appendChild(lineBreak);
+        } else {
+            const characterSpan = document.createElement("span");
+            characterSpan.textContent = character;
+            quoteDisplayElement.appendChild(characterSpan);
+        }
+    });
+    quoteInputElement.value = null;
+}
+
+getNextQuote();
+
+        
+
+    </script>
+  </body>
+</html>
