@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Recorder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color:rgb(176, 224, 230);
+            margin: 0;
+            padding: 0;
+            
+        }
+        
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            
+        }
+        
+        img {
+            width: 360px;
+            height: auto;
+            margin: 20px;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        label {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        input[type="text"] {
+            font-size: 18px;
+            padding: 10px;
+            margin: 10px;
+        }
+        
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Styles for the Stop button using the 'id' selector */
+#stop {
+    background-color: #FF5733;
+    color: #fff;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-bottom:10px; 
+}
+
+#stop:hover {
+    background-color: #D14228;
+}
+
+.stop-button {
+    background-color: #FF5733;
+    color: #fff;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    
+}
+
+.stop-button:hover {
+    background-color: #D14228;
+}
+
+        
+    </style>
+    
+</head>
+<body>
+    
+    <div id="container">
+        <img src="../static/images/soundimage.png" alt="Recorder Image">
+        <form method="post" id="recorder-form">
+            {% csrf_token %}
+            <label for="sec">Time in sec:</label>
+            <input type="text" name="sec" id="sec" required>
+            <button type="submit" name="action" value="start" id="start-button">Start Recording</button><br>
+            <div id="countdown-timer"></div>
+        </form>
+    </div>
+
+    
+    <script>
+        // JavaScript for countdown timer
+        document.getElementById('start-button').addEventListener('click', function () {
+            var sec = parseInt(document.getElementById('sec').value);
+            var countdownTimer = document.getElementById('countdown-timer');
+            
+            var interval = setInterval(function () {
+                if (sec > 0) {
+                    countdownTimer.innerHTML = sec + ' seconds';
+                    sec--;
+                } else {
+                    clearInterval(interval);
+                    countdownTimer.innerHTML = 'Recording...';
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
